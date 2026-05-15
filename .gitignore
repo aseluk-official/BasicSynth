@@ -1,0 +1,7 @@
+#Macos garbadge
+.DS_Store
+.AppleDouble
+.LSOverride
+
+#Why want the builds?
+/Builds/
