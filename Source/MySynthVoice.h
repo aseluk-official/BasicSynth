@@ -11,6 +11,7 @@ class MySynthVoice : public juce::SynthesiserVoice{
         void pitchWheelMoved (int newPitchWheelValue) override;
         void controllerMoved (int controllerNumber, int newControllerValue) override;
         void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
+        float sawWave(double phase);
     private:
         double currentPhase = 0.0;
         double phaseDelta = 0.0;
