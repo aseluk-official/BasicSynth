@@ -33,7 +33,7 @@ void BasicSynthAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText ("Mysterious Synth by aseluk", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void BasicSynthAudioProcessorEditor::resized()
