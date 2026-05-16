@@ -59,6 +59,7 @@ public:
 
 private:
     juce::Synthesiser mySynth;
+    juce::dsp::Limiter<float> limiter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BasicSynthAudioProcessor)
 };

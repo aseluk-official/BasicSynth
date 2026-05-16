@@ -97,6 +97,16 @@ void BasicSynthAudioProcessor::changeProgramName (int index, const juce::String&
 void BasicSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     mySynth.setCurrentPlaybackSampleRate (sampleRate);
+    
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = juce::uint32 (samplesPerBlock);
+    spec.numChannels = juce::uint32 (getTotalNumOutputChannels());
+
+    limiter.prepare (spec);
+        
+    limiter.setThreshold (-1.0f);
+    limiter.setRelease (100.0f);
 }
 
 void BasicSynthAudioProcessor::releaseResources()
@@ -143,6 +153,10 @@ void BasicSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     keyboardState.processNextMidiBuffer (midiMessages, 0, buffer.getNumSamples(), true);
 
     mySynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    limiter.process (context);
 }
 
 //==============================================================================
