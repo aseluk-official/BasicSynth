@@ -30,6 +30,10 @@ private:
     BasicSynthAudioProcessor& audioProcessor;
     
     juce::MidiKeyboardComponent keyboardComponent;
+    juce::ToggleButton sinButton, triangleButton, sawButton;
+    juce::Label sinLabel, triangleLabel, sawLabel;
+    juce::TextEditor globalTranspose, sinTranspose, triangleTranspose, sawWaveTranspose, sinTransposeLabel, triangleTransposeLabel, sawTransposeLabel, globalTransposeLabel;
+    juce::Slider sinTransposeSlider, triangleTransposeSlider, sawTransposeSlider, globalTransposeSlider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BasicSynthAudioProcessorEditor)
 };

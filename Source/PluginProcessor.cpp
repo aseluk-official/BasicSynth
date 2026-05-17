@@ -151,6 +151,15 @@ void BasicSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         buffer.clear (i, 0, buffer.getNumSamples());
     
     keyboardState.processNextMidiBuffer (midiMessages, 0, buffer.getNumSamples(), true);
+    
+    for (int i = 0; i < mySynth.getNumVoices(); ++i)
+    {
+        // Mevcut voice'u kendi sınıfınıza cast edin
+        if (auto* v = dynamic_cast<MySynthVoice*>(mySynth.getVoice(i)))
+        {
+            v->updateParameters(sinWaveOn.load(), triangleWaveOn.load(), sawWaveOn.load());
+        }
+    }
 
     mySynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
     

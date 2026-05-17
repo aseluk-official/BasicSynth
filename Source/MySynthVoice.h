@@ -16,12 +16,27 @@ class MySynthVoice : public juce::SynthesiserVoice{
         float triangleWave(double phase);
         float sawWave(double phase);
     
-        uint8_t numberOfWaves = 2;
-        float lowpassFilterCutoff;
+        void updateParameters(bool sinWaveOn, bool triangleWaveOn, bool sawWaveOn);
     private:
+        void updatePhase(double& phase, double delta);
+        
         double currentPhase = 0.0;
         double phaseDelta = 0.0;
         float level = 0.0;
+    
+        std::atomic<bool> sinWaveOn;
+        std::atomic<bool> triangleWaveOn;
+        std::atomic<bool> sawWaveOn;
+    
+        std::atomic<double> globalTranspose = 1;
+        std::atomic<double> sineTranspose = 1;
+        std::atomic<double> triangleTranspose = 1;
+        std::atomic<double> sawTranspose = 1;
+    
+        double sinePhase;
+        double trianglePhase;
+    double sawPhase;
+
         juce::ADSR adsr;
         juce::ADSR::Parameters adsrParams;
 };

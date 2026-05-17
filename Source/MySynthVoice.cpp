@@ -7,6 +7,13 @@ MySynthVoice::MySynthVoice() {
     adsrParams.release = 0.25f;
     adsr.setParameters(adsrParams);
 }
+
+void MySynthVoice::updateParameters(bool sinWaveOn, bool triangleWaveOn, bool sawWaveOn){
+    this->sinWaveOn.store(sinWaveOn);
+    this->triangleWaveOn.store(triangleWaveOn);
+    this->sawWaveOn.store(sawWaveOn);
+}
+
 bool MySynthVoice::canPlaySound (juce::SynthesiserSound* sound) {
     return dynamic_cast<MySynthSound*> (sound) != nullptr;
 };
@@ -44,10 +51,8 @@ float MySynthVoice::triangleWave(double phase){
 }
 
 float MySynthVoice::sawWave(double phase){
-    phase = fmod(phase, 2.0);
-    phase -= 1.0;
-    float result = phase;
-    return result;
+    double p = phase - floor(phase);
+    return (float)(2.0 * p - 1.0);
 }
 
 void MySynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) {
@@ -55,26 +60,48 @@ void MySynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         clearCurrentNote();
         return;
     }
-    if (level <= 0) return;
     
-    const double globalTranspose = 0.3;
+    const bool doSin = sinWaveOn.load();
+    const bool doTri = triangleWaveOn.load();
+    const bool doSaw = sawWaveOn.load();
+    const int numActive = (int)doSin + (int)doTri + (int)doSaw;
+    if (level <= 0 || numActive == 0) return;
     
-    const double sineTranspose = 1.0;
-    const double triangleTranspose = 1.0;
-    const double sawTranspose = 1.0 / 2.0;
+    const double sinePhaseDelta     = phaseDelta * globalTranspose * sineTranspose;
+    const double trianglePhaseDelta = phaseDelta * globalTranspose * triangleTranspose;
+    const double sawPhaseDelta      = phaseDelta * globalTranspose * sawTranspose;
     
     while (--numSamples >= 0){
         float adsrValue = adsr.getNextSample();
         
-        auto currentSample = (float) std::sin (currentPhase * sineTranspose * globalTranspose) * level * 0.2f;
-        currentSample += triangleWave(currentPhase * triangleTranspose * globalTranspose) * level * 0.2f;
-        //currentSample += sawWave(currentPhase * sawTranspose * globalTranspose) * level * 0.2f;
-        currentSample /= numberOfWaves;
+        auto currentSample = 0.0f;
+        
+        if (doSin) {
+            currentSample += (float) std::sin (sinePhase) * level * 0.2f;
+            updatePhase(sinePhase, sinePhaseDelta);
+        } 
+        if (doTri) {
+            currentSample += triangleWave(trianglePhase) * level * 0.2f;
+            updatePhase(trianglePhase, trianglePhaseDelta);
+        }
+        if (doSaw) {
+            currentSample += sawWave(sawPhase) * level * 0.2f;
+            updatePhase(sawPhase, sawPhaseDelta);
+        }
+        
+        currentSample /= numActive;
         currentSample *= adsrValue;
         for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel) {
             outputBuffer.addSample(channel, startSample, currentSample);
         }
         currentPhase += phaseDelta;
+        if (currentPhase >= juce::MathConstants<double>::twoPi)
+            currentPhase -= juce::MathConstants<double>::twoPi;
         ++startSample;
     }
 };
+void MySynthVoice::updatePhase(double& phase, double delta) {
+    phase += delta;
+    if (phase >= juce::MathConstants<double>::twoPi)
+        phase -= juce::MathConstants<double>::twoPi;
+}

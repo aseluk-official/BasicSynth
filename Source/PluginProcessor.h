@@ -55,6 +55,10 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
+    std::atomic<bool> sinWaveOn;
+    std::atomic<bool> triangleWaveOn;
+    std::atomic<bool> sawWaveOn;
+    
     juce::MidiKeyboardState keyboardState;
 
 private:
