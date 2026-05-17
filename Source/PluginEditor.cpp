@@ -29,6 +29,11 @@ BasicSynthAudioProcessorEditor::BasicSynthAudioProcessorEditor (BasicSynthAudioP
     addAndMakeVisible(sawTransposeLabel);
     addAndMakeVisible(globalTransposeLabel);
     
+    addAndMakeVisible(sinTransposeSlider);
+    addAndMakeVisible(triangleTransposeSlider);
+    addAndMakeVisible(sawTransposeSlider);
+    addAndMakeVisible(globalTransposeSlider);
+    
     sinLabel.attachToComponent(&sinButton, true);
     triangleLabel.attachToComponent(&triangleButton, true);
     sawLabel.attachToComponent(&sawButton, true);
@@ -42,6 +47,24 @@ BasicSynthAudioProcessorEditor::BasicSynthAudioProcessorEditor (BasicSynthAudioP
     sawTransposeLabel.setText("Saw Transpose", juce::NotificationType::dontSendNotification);
     globalTransposeLabel.setText("Global Transpose", juce::NotificationType::dontSendNotification);
     
+    sinTransposeSlider.setRange(-24, 24, 1);
+    triangleTransposeSlider.setRange(-24, 24, 1);
+    sawTransposeSlider.setRange(-24, 24, 1);
+    globalTransposeSlider.setRange(-24, 24, 1);
+    
+    sinTransposeSlider.onValueChange = [this] {
+        audioProcessor.sinTranspose.store(sinTransposeSlider.getValue());
+    };
+    triangleTransposeSlider.onValueChange = [this] {
+        audioProcessor.sinTranspose.store(triangleTransposeSlider.getValue());
+    };
+    sawTransposeSlider.onValueChange = [this] {
+        audioProcessor.sinTranspose.store(sawTransposeSlider.getValue());
+    };
+    globalTransposeSlider.onValueChange = [this] {
+        audioProcessor.sinTranspose.store(globalTransposeSlider.getValue());
+    };
+    
     sinButton.onClick = [this] {
         audioProcessor.sinWaveOn.store(sinButton.getToggleState());
     };
@@ -52,9 +75,27 @@ BasicSynthAudioProcessorEditor::BasicSynthAudioProcessorEditor (BasicSynthAudioP
         audioProcessor.sawWaveOn.store(sawButton.getToggleState());
     };
     
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+    addAndMakeVisible (resetButton);
+    
+    resetButton.setButtonText("Reset");
+    resetButton.onClick = [this] {
+        resetValues();
+    };
+
+    resetValues();
+    
     setSize (800, 300);
+}
+
+void BasicSynthAudioProcessorEditor::resetValues(){
+    sinTransposeSlider.setValue(-12);
+    triangleTransposeSlider.setValue(0);
+    sawTransposeSlider.setValue(0);
+    globalTransposeSlider.setValue(-24);
+    
+    sinButton.setToggleState(true, juce::sendNotification);
+    triangleButton.setToggleState(true, juce::sendNotification);
+    sawButton.setToggleState(false, juce::sendNotification);
 }
 
 BasicSynthAudioProcessorEditor::~BasicSynthAudioProcessorEditor()
@@ -68,14 +109,17 @@ void BasicSynthAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
     g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("Mysterious Synth by aseluk\nAka: Ahmet Selim Uslu", getLocalBounds(), juce::Justification::centred, 1);
+    g.setFont (juce::FontOptions(20.0f));
+    
+    auto topArea = getLocalBounds().removeFromTop(220);
+    
+    g.drawFittedText ("Mysterious Synth by aseluk\nAKA: Ahmet Selim Uslu", topArea, juce::Justification::centred, 1);
 }
 
 void BasicSynthAudioProcessorEditor::resized()
 {
     const auto labelWidth = 20;
-    const auto labelHeight = 10;
+    const auto labelHeight = 20;
     const auto buttonWidth = 25;
     const auto buttonHeight = 20;
     
@@ -86,5 +130,35 @@ void BasicSynthAudioProcessorEditor::resized()
     triangleButton.setBounds(80, buttonHeight * 1, buttonWidth, buttonHeight);
     sawButton.setBounds(80, buttonHeight * 2, buttonWidth, buttonHeight);
     
-    keyboardComponent.setBounds (10, getHeight() - 110, getWidth() - 20, 100);
+    const auto sliderWidth = 49 * 5;
+    const auto sliderHeight = 20;
+    
+    const auto bigLabelWidth = labelWidth * 6;
+    
+    sinTransposeLabel.setBounds(getWidth() - (sliderWidth + bigLabelWidth), labelHeight * 0, bigLabelWidth, labelHeight);
+    triangleTransposeLabel.setBounds(getWidth() - (sliderWidth + bigLabelWidth), labelHeight * 1, bigLabelWidth, labelHeight);
+    sawTransposeLabel.setBounds(getWidth() - (sliderWidth + bigLabelWidth), labelHeight * 2, bigLabelWidth, labelHeight);
+    globalTransposeLabel.setBounds(getWidth() - (sliderWidth + bigLabelWidth), labelHeight * 3, bigLabelWidth, labelHeight);
+    
+    sinTransposeSlider.setBounds(getWidth() - sliderWidth, sliderHeight * 0, sliderWidth, sliderHeight);
+    triangleTransposeSlider.setBounds(getWidth() - sliderWidth, sliderHeight * 1, sliderWidth, sliderHeight);
+    sawTransposeSlider.setBounds(getWidth() - sliderWidth, sliderHeight * 2, sliderWidth, sliderHeight);
+    globalTransposeSlider.setBounds(getWidth() - sliderWidth, sliderHeight * 3, sliderWidth, sliderHeight);
+    
+    
+    int keyboardX = 10;
+    int keyboardHeight = 100;
+    int keyboardWidth = getWidth() - 20;
+    int keyboardY = getHeight() - 110;
+
+    keyboardComponent.setBounds (keyboardX, keyboardY, keyboardWidth, keyboardHeight);
+
+    int resetButtonWidth = 80;
+    int resetButtonHeight = 30;
+    int resetButtonMargin = 5;
+
+    resetButton.setBounds (getWidth() / 2 - resetButtonWidth / 2,
+                           keyboardY - resetButtonHeight - resetButtonMargin,
+                           resetButtonWidth,
+                           resetButtonHeight);
 }

@@ -157,7 +157,7 @@ void BasicSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         // Mevcut voice'u kendi sınıfınıza cast edin
         if (auto* v = dynamic_cast<MySynthVoice*>(mySynth.getVoice(i)))
         {
-            v->updateParameters(sinWaveOn.load(), triangleWaveOn.load(), sawWaveOn.load());
+            v->updateParameters(sinWaveOn.load(), triangleWaveOn.load(), sawWaveOn.load(), sinTranspose.load(), triangleTranspose.load(), sawTranspose.load(), globalTranspose.load());
         }
     }
 

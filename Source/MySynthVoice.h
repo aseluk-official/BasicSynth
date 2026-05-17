@@ -16,7 +16,7 @@ class MySynthVoice : public juce::SynthesiserVoice{
         float triangleWave(double phase);
         float sawWave(double phase);
     
-        void updateParameters(bool sinWaveOn, bool triangleWaveOn, bool sawWaveOn);
+        void updateParameters(bool sinWaveOn, bool triangleWaveOn, bool sawWaveOn, int sinTranspose, int triangleTranspose, int sawTranpose, int globalTranspose);
     private:
         void updatePhase(double& phase, double delta);
         
@@ -27,9 +27,8 @@ class MySynthVoice : public juce::SynthesiserVoice{
         std::atomic<bool> sinWaveOn;
         std::atomic<bool> triangleWaveOn;
         std::atomic<bool> sawWaveOn;
-    
-        std::atomic<double> globalTranspose = 1;
-        std::atomic<double> sineTranspose = 1;
+
+        std::atomic<double> sinTranspose = 1;
         std::atomic<double> triangleTranspose = 1;
         std::atomic<double> sawTranspose = 1;
     

@@ -59,6 +59,11 @@ public:
     std::atomic<bool> triangleWaveOn;
     std::atomic<bool> sawWaveOn;
     
+    std::atomic<int> sinTranspose;
+    std::atomic<int> triangleTranspose;
+    std::atomic<int> sawTranspose;
+    std::atomic<int> globalTranspose;
+    
     juce::MidiKeyboardState keyboardState;
 
 private:
